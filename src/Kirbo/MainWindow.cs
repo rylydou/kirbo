@@ -36,6 +36,7 @@ namespace Kirbo
 					{
 						var playlistsPanel = new Stack() { WidthRequest = 360 };
 
+
 						var listView = new TreeView();
 						listView.HeadersVisible = false;
 
@@ -47,11 +48,9 @@ namespace Kirbo
 						column.AddAttribute(cellView, "text", 0);
 						listView.AppendColumn(column);
 
-						listStore.InsertWithValues(0, "Item 1");
-						listStore.InsertWithValues(1, "Item 2");
-						listStore.InsertWithValues(2, "Item 3");
-
 						playlistsPanel.Add(listView);
+
+						Database.current.UpdatePlaylistsStore(listView);
 
 						musicPage.Add(playlistsPanel);
 					}
@@ -116,6 +115,9 @@ namespace Kirbo
 		protected override void OnDestroyed()
 		{
 			player.Dispose();
+
+			Config.current.Save();
+			Database.current.Save();
 
 			Application.Quit();
 

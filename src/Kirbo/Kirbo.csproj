@@ -4,19 +4,20 @@
 		<OutputType>WinExe</OutputType>
 		<TargetFramework>net5.0</TargetFramework>
 		<Nullable>enable</Nullable>
+		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+		<AppendRuntimeIdentifierToOutputPath>true</AppendRuntimeIdentifierToOutputPath>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<None Remove="**\*.glade" />
-		<EmbeddedResource Include="**\*.glade">
-			<LogicalName>%(Filename)%(Extension)</LogicalName>
-		</EmbeddedResource>
-	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="GtkSharp" Version="3.24.24.34" />
 		<PackageReference Include="ManagedBass" Version="3.1.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="z440.atl.core" Version="3.24.0" />
+	</ItemGroup>
+
+	<!-- Condition="'$(RuntimeIdentifier)' == 'win-x64'" -->
+	<ItemGroup>
+		<Content Include="deps/win-x64/**" Link="/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 </Project>

@@ -24,17 +24,10 @@ namespace Kirbo
 					{
 						_current = new Config();
 					}
-
-					Application.Default.Shutdown += (sender, args) =>
-					{
-						File.WriteAllText($"{dataPath}/settings.json", JsonConvert.SerializeObject(_current));
-					};
 				}
 				return _current;
 			}
 		}
-
-		public List<string> musicFolders = new List<string>();
 
 		static string? _dataPath;
 		public static string dataPath
@@ -68,6 +61,13 @@ namespace Kirbo
 
 				return _playlistsPath;
 			}
+		}
+
+		public List<string> musicFolders = new List<string>();
+
+		public void Save()
+		{
+			File.WriteAllText($"{dataPath}/settings.json", JsonConvert.SerializeObject(_current));
 		}
 	}
 }

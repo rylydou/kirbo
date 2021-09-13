@@ -15,16 +15,18 @@ namespace Kirbo
 
 		public void PlaySong(PlaylistEntry song)
 		{
-			// currentSong = song;
+			currentSong = song;
 
-			// if (currentSongHandle >= 0)
-			// {
-			// 	Bass.StreamFree(currentSongHandle);
-			// }
+			if (currentSongHandle >= 0)
+			{
+				Bass.StreamFree(currentSongHandle);
+			}
 
-			// currentSongHandle = Bass.CreateStream(song);
+			if (song.referencedSong is null) return;
 
-			// Bass.ChannelPlay(currentSongHandle);
+			currentSongHandle = Bass.CreateStream(song.referencedSong.path);
+
+			Bass.ChannelPlay(currentSongHandle);
 		}
 
 		public void Dispose()

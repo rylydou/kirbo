@@ -10,8 +10,7 @@ namespace Kirbo
 		[DataMember] public string description = string.Empty;
 		[DataMember] public List<PlaylistEntry> songs = new List<PlaylistEntry>();
 
-		// TODO
-		public string internalName => title;
+		public string systemName => title.ToSystem();
 
 		public Playlist(string title)
 		{
