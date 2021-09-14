@@ -64,14 +64,23 @@ namespace Kirbo
 			}
 		}
 
-		public void UpdatePlaylistsStore(TreeView list)
+		public void UpdateUI(Notebook list)
 		{
-			var model = (ListStore)list.Model;
-			list.Selection.Changed += (sender, args) => Console.WriteLine("Selected somthing");
-			model.Clear();
+			for (int i = list.NPages - 1; i >= 0; i--)
+			{
+				list.RemovePage(i);
+			}
+
 			foreach (var playlist in playlists)
 			{
-				model.AppendValues(playlist.title);
+				var page = new VBox();
+
+				foreach (var song in playlist.songs)
+				{
+					page.Add(new Label(song.title) { HeightRequest = 24 });
+				}
+
+				list.AppendPage(page, new Label(playlist.title));
 			}
 		}
 	}

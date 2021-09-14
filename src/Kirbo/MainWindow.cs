@@ -7,6 +7,8 @@ namespace Kirbo
 	{
 		bool ENABLE_CUSTOM_STYLES = false;
 
+		public Notebook playlistsNotebook;
+
 		CssProvider resetProvider;
 		CssProvider styleProvider;
 
@@ -27,6 +29,7 @@ namespace Kirbo
 			// Tabs
 			{
 				var tabs = new Notebook();
+				tabs.TabPos = PositionType.Left;
 
 				// Music Page
 				{
@@ -36,40 +39,24 @@ namespace Kirbo
 					{
 						var playlistsPanel = new Stack() { WidthRequest = 360 };
 
+						playlistsNotebook = new Notebook();
+						playlistsNotebook.TabPos = PositionType.Left;
 
-						var listView = new TreeView();
-						listView.HeadersVisible = false;
+						Database.current.UpdateUI(playlistsNotebook);
 
-						var listStore = new ListStore(typeof(string));
-						listView.Model = listStore;
-
-						var cellView = new CellRendererText();
-						var column = new TreeViewColumn("Title", cellView);
-						column.AddAttribute(cellView, "text", 0);
-						listView.AppendColumn(column);
-
-						playlistsPanel.Add(listView);
-
-						Database.current.UpdatePlaylistsStore(listView);
+						playlistsPanel.Add(playlistsNotebook);
 
 						musicPage.Add(playlistsPanel);
 					}
 
-					// Playlist Content
-					{
-						var playlistContent = new Stack();
-
-						musicPage.Add(playlistContent);
-					}
-
-					tabs.AppendPage(musicPage, new Label("Music"));
+					tabs.AppendPage(musicPage, new Label("🎵"));
 				}
 
 				// Settings Page
 				{
 					var settingsPage = new Label("Settings Page");
 
-					tabs.AppendPage(settingsPage, new Label("Settings"));
+					tabs.AppendPage(settingsPage, new Label("🔧"));
 				}
 
 				mainLayout.Add(tabs);

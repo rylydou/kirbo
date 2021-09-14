@@ -63,7 +63,7 @@ namespace Kirbo
 			}
 		}
 
-		public List<string> musicFolders = new List<string>();
+		public List<string> musicFolders = new List<string>() { Environment.CurrentDirectory + "/data/music" };
 
 		public void Save()
 		{
