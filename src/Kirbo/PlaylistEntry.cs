@@ -41,7 +41,7 @@ namespace Kirbo
 				if (!_songFound)
 				{
 					// Find songs with the same title
-					if (!Database.current.titleToSong.TryGetValue(title, out var songsWithTitle)) return null;
+					if (!MainWindow.current.database.titleToSong.TryGetValue(title, out var songsWithTitle)) return null;
 					// If it the only one then its been found
 					if (songsWithTitle.Count == 1) return FoundSong(songsWithTitle[0]);
 
@@ -81,5 +81,7 @@ namespace Kirbo
 			_referencedSong = song;
 			return _referencedSong;
 		}
+
+		public override string ToString() => $"{title} {artist} {album}";
 	}
 }

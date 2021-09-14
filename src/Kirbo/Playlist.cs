@@ -25,5 +25,7 @@ namespace Kirbo
 				song.playlist = this;
 			}
 		}
+
+		public override string ToString() => title;
 	}
 }

@@ -5,6 +5,11 @@ namespace Kirbo
 {
 	class MainWindow : Window
 	{
+		// Nullable hacks
+#nullable disable
+		public static MainWindow current;
+#nullable enable
+
 		bool ENABLE_CUSTOM_STYLES = false;
 
 		public Notebook playlistsNotebook;
@@ -12,19 +17,21 @@ namespace Kirbo
 		CssProvider resetProvider;
 		CssProvider styleProvider;
 
-		MusicPlayer player;
+		public MusicPlayer player;
+		public Database database;
 
 		public MainWindow() : base("Kirbo")
 		{
+			current = this;
+
 			SetPosition(WindowPosition.Center);
 			SetDefaultSize(1280, 720);
 
 			player = new MusicPlayer();
-
-			// player.PlaySong(new Song(Environment.CurrentDirectory + "/data/music/Baba Is You - Crystal Is Still.wav"));
+			database = new Database();
 
 			// Main Layout
-			var mainLayout = new Stack();
+			var mainLayout = new VBox();
 
 			// Tabs
 			{
@@ -42,7 +49,7 @@ namespace Kirbo
 						playlistsNotebook = new Notebook();
 						playlistsNotebook.TabPos = PositionType.Left;
 
-						Database.current.UpdateUI(playlistsNotebook);
+						database.UpdateUI(playlistsNotebook);
 
 						playlistsPanel.Add(playlistsNotebook);
 
@@ -104,7 +111,7 @@ namespace Kirbo
 			player.Dispose();
 
 			Config.current.Save();
-			Database.current.Save();
+			MainWindow.current.database.Save();
 
 			Application.Quit();
 
