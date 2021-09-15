@@ -149,6 +149,8 @@ namespace Kirbo
 			Trace.WriteLine($"Playing #{currentSongHandle}");
 			Bass.ChannelPlay(currentSongHandle);
 
+			Bass.ChannelBytes2Seconds(currentSongHandle, Bass.ChannelGetLength(currentSongHandle));
+
 			Bass.ChannelSetAttribute(currentSongHandle, ChannelAttribute.Volume, 0.5f);
 		}
 

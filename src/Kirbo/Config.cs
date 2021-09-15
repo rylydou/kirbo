@@ -37,10 +37,10 @@ namespace Kirbo
 				if (_dataPath is null)
 				{
 #if DEBUG
-					_dataPath = $"{Environment.CurrentDirectory}/data";
+					_dataPath = $"{Environment.CurrentDirectory.CleanPath()}/data";
 					if (!Directory.Exists(_dataPath)) Directory.CreateDirectory(_dataPath);
 #else
-					_dataPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}/Kirbo";
+					_dataPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData).CleanPath()}/Kirbo";
 					if (!Directory.Exists(_dataPath)) Directory.CreateDirectory(_dataPath);
 #endif
 				}
@@ -63,7 +63,7 @@ namespace Kirbo
 			}
 		}
 
-		public List<string> musicFolders = new List<string>() { Environment.CurrentDirectory + "/data/music" };
+		public List<string> musicFolders = new List<string>() { dataPath + "/data/music" };
 
 		public void Save()
 		{

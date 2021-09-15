@@ -29,5 +29,7 @@ namespace Kirbo
 
 			return sb.ToString();
 		}
+
+		public static string CleanPath(this string str) => str.Replace('\\', '/');
 	}
 }
