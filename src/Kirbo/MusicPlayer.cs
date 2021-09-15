@@ -14,7 +14,7 @@ namespace Kirbo
 		public Playlist? playlist;
 		public DatabaseSongEntry? currentSong;
 
-		public int currentSongHandle = -1;
+		public int currentSongHandle;
 
 		public MusicPlayer()
 		{
@@ -119,7 +119,7 @@ namespace Kirbo
 				}
 
 				// If the song is older than the best song the choose that one
-				if (DateTime.Compare(song.lastPlayed.Value, bestSong.lastPlayed!.Value) > 0)
+				if (DateTime.Compare(song.lastPlayed.Value, bestSong.lastPlayed!.Value) < 0)
 				{
 					bestSong = song;
 					continue;
@@ -137,8 +137,8 @@ namespace Kirbo
 
 			// Free the old song
 			Trace.WriteLine($"Unloading #{currentSongHandle}");
-			if (currentSongHandle > 0)
-				Bass.StreamFree(currentSongHandle);
+			Bass.ChannelStop(currentSongHandle);
+			Bass.StreamFree(currentSongHandle);
 
 			currentSong = song;
 
@@ -148,10 +148,13 @@ namespace Kirbo
 
 			Trace.WriteLine($"Playing #{currentSongHandle}");
 			Bass.ChannelPlay(currentSongHandle);
+
+			Bass.ChannelSetAttribute(currentSongHandle, ChannelAttribute.Volume, 0.5f);
 		}
 
 		public void Dispose()
 		{
+			Bass.Stop();
 			Bass.Free();
 		}
 	}

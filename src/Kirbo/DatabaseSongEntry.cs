@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ATL;
 
 namespace Kirbo
@@ -8,9 +9,13 @@ namespace Kirbo
 	{
 		public string path;
 
-		public string title;
-		public string? artist;
-		public string? album;
+		public readonly string title;
+		public readonly string? artist;
+		public readonly string? album;
+
+		public readonly string systemTitle;
+		public readonly string systemArtist;
+		public readonly string systemAlbum;
 
 		public DateTime? lastPlayed;
 		public ushort timesPlayed;
@@ -20,36 +25,31 @@ namespace Kirbo
 			this.path = path;
 
 			var track = new Track(path);
+
 			this.title = track.Title;
 			this.artist = track.Artist;
 			this.album = track.Album;
 
-			if (MainWindow.current.database.titleToSong.TryGetValue(title, out var titleList))
-			{
+			this.systemTitle = title.ToSystem();
+			this.systemArtist = artist.ToSystem();
+			this.systemAlbum = album.ToSystem();
+
+			if (MainWindow.current.database.titleToSong.TryGetValue(systemTitle, out var titleList))
 				titleList.Add(this);
-			}
 			else
-			{
-				MainWindow.current.database.titleToSong.Add(title, new List<DatabaseSongEntry>() { this });
-			}
+				MainWindow.current.database.titleToSong.Add(systemTitle, new List<DatabaseSongEntry>() { this });
 
-			if (MainWindow.current.database.artistToSong.TryGetValue(title, out var artistList))
-			{
+			if (MainWindow.current.database.artistToSong.TryGetValue(systemArtist, out var artistList))
 				artistList.Add(this);
-			}
 			else
-			{
-				MainWindow.current.database.artistToSong.Add(title, new List<DatabaseSongEntry>() { this });
-			}
+				MainWindow.current.database.artistToSong.Add(systemArtist, new List<DatabaseSongEntry>() { this });
 
-			if (MainWindow.current.database.albumToSong.TryGetValue(title, out var albumList))
-			{
+			if (MainWindow.current.database.albumToSong.TryGetValue(systemAlbum, out var albumList))
 				albumList.Add(this);
-			}
 			else
-			{
-				MainWindow.current.database.albumToSong.Add(title, new List<DatabaseSongEntry>() { this });
-			}
+				MainWindow.current.database.albumToSong.Add(systemAlbum, new List<DatabaseSongEntry>() { this });
+
+			Trace.WriteLine($"Song DB {title} {artist} {album}");
 		}
 
 		public override string ToString() => $"{path} {title} {artist} {album}";

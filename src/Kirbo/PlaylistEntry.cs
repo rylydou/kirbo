@@ -26,9 +26,13 @@ namespace Kirbo
 	{
 		public Playlist? playlist;
 
-		public string title;
-		public string artist;
-		public string album;
+		public readonly string title;
+		public readonly string artist;
+		public readonly string album;
+
+		public readonly string systemTitle;
+		public readonly string systemArtist;
+		public readonly string systemAlbum;
 
 		bool _songFound;
 
@@ -41,23 +45,23 @@ namespace Kirbo
 				if (!_songFound)
 				{
 					// Find songs with the same title
-					if (!MainWindow.current.database.titleToSong.TryGetValue(title, out var songsWithTitle)) return null;
+					if (!MainWindow.current.database.titleToSong.TryGetValue(systemTitle, out var songsWithTitle)) return null;
 					// If it the only one then its been found
 					if (songsWithTitle.Count == 1) return FoundSong(songsWithTitle[0]);
 
 					// Find the song by title and artist
 					// Find all the songs with that name by the artist
-					var songsWithTitleByArtist = songsWithTitle.FindAll(s => s.artist == artist);
+					var songsWithTitleByArtist = songsWithTitle.FindAll(s => s.systemArtist == systemArtist);
 					if (songsWithTitleByArtist.Count > 0)
 					{
 						// If it is the only one then its been found
 						if (songsWithTitleByArtist.Count == 1) return FoundSong(songsWithTitleByArtist[0]);
 						// Find the song by title artist and album
-						return FoundSong(songsWithTitleByArtist.Find(s => s.album == album));
+						return FoundSong(songsWithTitleByArtist.Find(s => s.systemAlbum == systemAlbum));
 					}
 
 					// Find song by title and album, an album should never have multiple songs with the same name
-					return FoundSong(songsWithTitle.Find(s => s.album == album));
+					return FoundSong(songsWithTitle.Find(s => s.systemAlbum == systemAlbum));
 				}
 				return _referencedSong;
 			}
@@ -68,6 +72,10 @@ namespace Kirbo
 			this.title = title;
 			this.artist = artist;
 			this.album = album;
+
+			this.systemTitle = title.ToSystem();
+			this.systemArtist = artist.ToSystem();
+			this.systemAlbum = album.ToSystem();
 		}
 
 		DatabaseSongEntry? FoundSong(DatabaseSongEntry? song)

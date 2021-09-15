@@ -17,7 +17,6 @@ namespace Kirbo
 
 		public Database()
 		{
-			ReloadAll();
 		}
 
 		public void Save()
@@ -43,7 +42,10 @@ namespace Kirbo
 			songs.Clear();
 			foreach (var musicFolder in Config.current.musicFolders)
 			{
-				Directory.GetFiles(musicFolder);
+				foreach (var song in Directory.GetFiles(musicFolder, "*", new EnumerationOptions() { RecurseSubdirectories = true }))
+				{
+					songs.Add(new DatabaseSongEntry(song));
+				}
 			}
 		}
 
@@ -65,6 +67,9 @@ namespace Kirbo
 				playlistsNotebook.RemovePage(i);
 			}
 
+			{
+			}
+
 			foreach (var playlist in playlists)
 			{
 				var page = new ListBox();
@@ -79,8 +84,8 @@ namespace Kirbo
 				};
 				page.Add(playButton);
 
-				var songsList = new TreeView();
-				// page.HeadersVisible = false;
+				var songsList = new TreeView() { HeadersClickable = true };
+				// songsList.HeadersVisible = false;
 
 				var listStore = new ListStore(typeof(string), typeof(string), typeof(string));
 				songsList.Model = listStore;

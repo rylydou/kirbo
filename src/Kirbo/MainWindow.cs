@@ -29,6 +29,7 @@ namespace Kirbo
 
 			player = new MusicPlayer();
 			database = new Database();
+			database.ReloadAll();
 
 			// Main Layout
 			var mainLayout = new VBox();
@@ -46,7 +47,7 @@ namespace Kirbo
 					{
 						var playlistsPanel = new Stack() { WidthRequest = 360 };
 
-						playlistsNotebook = new Notebook();
+						playlistsNotebook = new Notebook() { WidthRequest = 360 };
 						playlistsNotebook.TabPos = PositionType.Left;
 
 						database.UpdateUI(playlistsNotebook);
