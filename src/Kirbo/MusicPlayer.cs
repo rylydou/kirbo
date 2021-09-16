@@ -14,11 +14,15 @@ namespace Kirbo
 		public Playlist? playlist;
 		public DatabaseSongEntry? currentSong;
 
-		public int currentSongHandle;
+		public SongInsance mainSongInstance;
 
 		public MusicPlayer()
 		{
 			Bass.Init();
+
+			mainSongInstance = new SongInsance();
+
+			mainSongInstance.onFinish += s => PlayRandomSongFromPlaylist();
 		}
 
 		public void LoadPlaylist(Playlist playlist)
@@ -135,23 +139,12 @@ namespace Kirbo
 			song.lastPlayed = DateTime.Now;
 			song.timesPlayed++;
 
-			// Free the old song
-			Trace.WriteLine($"Unloading #{currentSongHandle}");
-			Bass.ChannelStop(currentSongHandle);
-			Bass.StreamFree(currentSongHandle);
-
 			currentSong = song;
 
-			// Play the new song
-			Trace.WriteLine($"Creating stream for '{song}'");
-			currentSongHandle = Bass.CreateStream(song.path);
+			mainSongInstance.Load(song.path);
 
-			Trace.WriteLine($"Playing #{currentSongHandle}");
-			Bass.ChannelPlay(currentSongHandle);
-
-			Bass.ChannelBytes2Seconds(currentSongHandle, Bass.ChannelGetLength(currentSongHandle));
-
-			Bass.ChannelSetAttribute(currentSongHandle, ChannelAttribute.Volume, 0.5f);
+			mainSongInstance.volume = 0.5;
+			mainSongInstance.Play();
 		}
 
 		public void Dispose()

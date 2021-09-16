@@ -26,14 +26,6 @@ namespace Kirbo
 			{
 				File.WriteAllText(Config.playlistsPath + playlist.systemName + ".json", JsonConvert.SerializeObject(playlist));
 			}
-
-			foreach (var playlistPath in Directory.GetFiles(Config.playlistsPath))
-			{
-				if (!usedPlaylistsPaths.Contains(playlistPath.CleanPath()))
-				{
-					File.Delete(playlistPath);
-				}
-			}
 		}
 
 		public void ReloadAll()
@@ -74,10 +66,12 @@ namespace Kirbo
 
 			// Generate all music
 			{
+				var page = new ScrolledWindow();
+
 				var allMusicList = new TreeView() { HeadersClickable = true };
 				// songsList.HeadersVisible = false;
 
-				var listStore = new ListStore(typeof(string), typeof(string), typeof(string));
+				var listStore = new ListStore(typeof(string), typeof(string), typeof(string), typeof(string));
 				allMusicList.Model = listStore;
 
 				var titleCellView = new CellRendererText();
@@ -96,8 +90,8 @@ namespace Kirbo
 				allMusicList.AppendColumn(albumColumn);
 
 				var pathCellView = new CellRendererText();
-				var pathColumn = new TreeViewColumn("Location", albumCellView);
-				pathColumn.AddAttribute(pathCellView, "text", 2);
+				var pathColumn = new TreeViewColumn("Location", pathCellView);
+				pathColumn.AddAttribute(pathCellView, "text", 3);
 				allMusicList.AppendColumn(pathColumn);
 
 				foreach (var song in MainWindow.current.database.songs)
@@ -105,7 +99,9 @@ namespace Kirbo
 					listStore.AppendValues(song.title, song.artist, song.album, song.path);
 				}
 
-				playlistsNotebook.AppendPage(allMusicList, new Label("All Music"));
+				page.Add(allMusicList);
+
+				playlistsNotebook.AppendPage(page, new Label("All Music"));
 			}
 
 			foreach (var playlist in playlists)
@@ -127,6 +123,8 @@ namespace Kirbo
 				var descInput = new Entry(playlist.description);
 				descInput.Changed += (sender, args) => playlist.description = descInput.Text;
 				page.Add(descInput);
+
+				var songListScroll = new ScrolledWindow();
 
 				var songsList = new TreeView() { HeadersClickable = true };
 				// songsList.HeadersVisible = false;
@@ -154,7 +152,9 @@ namespace Kirbo
 					listStore.AppendValues(song.title, song.artist, song.album);
 				}
 
-				page.Add(songsList);
+				songListScroll.Add(songsList);
+
+				page.Add(songListScroll);
 				playlistsNotebook.AppendPage(page, new Label(playlist.title));
 			}
 		}

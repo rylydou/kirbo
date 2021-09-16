@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using ManagedBass;
@@ -11,21 +12,27 @@ namespace Kirbo
 		public long length { get; private set; }
 		public TimeSpan duration { get; private set; }
 
-		public TimeSpan position
+		public TimeSpan position { get => BytesToTimeSpan(Bass.ChannelGetPosition(handle)); set => Bass.ChannelSetPosition(handle, TimeSpanToBytes(value)); }
+
+		public double volume
 		{
-			get => BytesToTimeSpan(Bass.ChannelGetPosition(handle));
-			set => Bass.ChannelSetPosition(handle, TimeSpanToBytes(value));
+			get => Bass.ChannelGetAttribute(handle, ChannelAttribute.Volume);
+			set
+			{
+				Bass.ChannelSetAttribute(handle, ChannelAttribute.Volume, value);
+				onPropertyChanged.Invoke(this);
+			}
 		}
 
-		public float volume { get => (float)Bass.ChannelGetAttribute(handle, ChannelAttribute.Volume); set => Bass.ChannelSetAttribute(handle, ChannelAttribute.Volume, value)}
-
-		public readonly Action<SongInsance> onFinish = s => { };
-		public readonly Action<SongInsance> onLoaded = s => { };
-		public readonly Action<SongInsance> onError = s => { };
-		public readonly Action<SongInsance> onDisposed = s => { };
-
 		public PlaybackState state => Bass.ChannelIsActive(handle);
-		public readonly Action<SongInsance> onStateChanged = s => { };
+		public Action<SongInsance> onStateChanged = s => { };
+
+		public Action<SongInsance> onFinish = s => { };
+		public Action<SongInsance> onLoaded = s => { };
+		public Action<SongInsance> onError = s => { };
+		public Action<SongInsance> onDisposed = s => { };
+
+		public Action<SongInsance> onPropertyChanged = s => { };
 
 		readonly SynchronizationContext? _syncContext;
 
@@ -34,51 +41,59 @@ namespace Kirbo
 			_syncContext = SynchronizationContext.Current;
 		}
 
-		int OnLoad(string file) => Bass.CreateStream(file);
-
-		public async Task<bool> LoadAsync(string FileName)
+		public async Task<bool> LoadAsync(string file)
 		{
-			try
-			{
-				if (this.handle != 0) Bass.StreamFree(this.handle);
-			}
+			Trace.WriteLine("Loading " + file);
+
+			try { if (this.handle != 0) Bass.StreamFree(this.handle); }
 			catch { }
 
-			if (_dev != -1)
-				Bass.CurrentDevice = _dev;
-
-			var currentDev = Bass.CurrentDevice;
-
-			if (currentDev == -1 || !Bass.GetDeviceInfo(Bass.CurrentDevice).IsInitialized)
-				Bass.Init(currentDev);
-
-			var handle = await Task.Run(() => OnLoad(FileName));
+			var handle = await Task.Run(() => OnLoad(file));
 
 			if (handle == 0) return false;
 
 			this.handle = handle;
 
-			var tags = TagReader.Read(handle);
+			// Init Events
+			Bass.ChannelSetSync(handle, SyncFlags.Free, 0, GetSyncProcedure(() => onDisposed.Invoke(this)));
+			Bass.ChannelSetSync(handle, SyncFlags.Stop, 0, GetSyncProcedure(() => onError.Invoke(this)));
+			Bass.ChannelSetSync(handle, SyncFlags.End, 0, GetSyncProcedure(() => { onFinish.Invoke(this); onStateChanged.Invoke(this); }));
 
-			InitProperties();
+			length = Bass.ChannelGetLength(handle);
+			duration = BytesToTimeSpan(length);
 
 			onLoaded.Invoke(this);
 
 			return true;
 		}
 
-		SyncProcedure GetSyncProcedure(Action Handler)
+		public bool Load(string file)
 		{
-			return (SyncHandle, Channel, Data, User) =>
-			{
-				if (Handler == null)
-					return;
+			Trace.WriteLine("Loading " + file);
 
-				if (_syncContext == null)
-					Handler();
-				else _syncContext.Post(S => Handler(), null);
-			};
+			try { if (this.handle != 0) Bass.StreamFree(this.handle); }
+			catch { }
+
+			var handle = OnLoad(file);
+
+			if (handle == 0) return false;
+
+			this.handle = handle;
+
+			// Init Events
+			Bass.ChannelSetSync(handle, SyncFlags.Free, 0, GetSyncProcedure(() => onDisposed.Invoke(this)));
+			Bass.ChannelSetSync(handle, SyncFlags.Stop, 0, GetSyncProcedure(() => onError.Invoke(this)));
+			Bass.ChannelSetSync(handle, SyncFlags.End, 0, GetSyncProcedure(() => { onFinish.Invoke(this); onStateChanged.Invoke(this); }));
+
+			length = Bass.ChannelGetLength(handle);
+			duration = BytesToTimeSpan(length);
+
+			onLoaded.Invoke(this);
+
+			return true;
 		}
+
+		int OnLoad(string file) => Bass.CreateStream(file);
 
 		public TimeSpan BytesToTimeSpan(long position) => TimeSpan.FromSeconds(Bass.ChannelBytes2Seconds(handle, position));
 		public long TimeSpanToBytes(TimeSpan span) => Bass.ChannelSeconds2Bytes(handle, span.TotalSeconds);
@@ -86,30 +101,35 @@ namespace Kirbo
 		public bool Play()
 		{
 			try { return Bass.ChannelPlay(handle); }
-			finally { onStateChanged(this); }
+			finally { onStateChanged.Invoke(this); }
 		}
 
 		public bool Pause()
 		{
 			try { return Bass.ChannelPause(handle); }
-			finally { onStateChanged(this); }
+			finally { onStateChanged.Invoke(this); }
 		}
 
 		public bool Stop()
 		{
-			try
-			{
-				return Bass.ChannelStop(handle);
-			}
-			finally
-			{
-				onStateChanged(this);
-			}
+			try { return Bass.ChannelStop(handle); }
+			finally { onStateChanged.Invoke(this); }
 		}
 
 		public void Dispose()
 		{
-			Bass.StreamFree(handle);
+			try { if (Bass.StreamFree(handle)) handle = 0; }
+			finally { onStateChanged.Invoke(this); }
+		}
+
+		SyncProcedure GetSyncProcedure(Action handler)
+		{
+			return (syncHandle, channel, data, user) =>
+			{
+				if (handler == null) return;
+				if (_syncContext == null) handler.Invoke();
+				else _syncContext.Post(S => handler.Invoke(), null);
+			};
 		}
 	}
 }

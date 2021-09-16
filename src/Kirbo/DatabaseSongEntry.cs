@@ -22,7 +22,7 @@ namespace Kirbo
 
 		public DatabaseSongEntry(string path)
 		{
-			this.path = path;
+			this.path = path.CleanPath();
 
 			var track = new Track(path);
 
@@ -49,9 +49,9 @@ namespace Kirbo
 			else
 				MainWindow.current.database.albumToSong.Add(systemAlbum, new List<DatabaseSongEntry>() { this });
 
-			Trace.WriteLine($"Song DB {title} {artist} {album}");
+			Trace.WriteLine($"Added song {this} to database");
 		}
 
-		public override string ToString() => $"{path} {title} {artist} {album}";
+		public override string ToString() => $"{title} {artist} {album} @{path}";
 	}
 }

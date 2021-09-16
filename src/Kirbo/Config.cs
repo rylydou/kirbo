@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Gtk;
 using Newtonsoft.Json;
@@ -15,14 +16,22 @@ namespace Kirbo
 			{
 				if (_current is null)
 				{
-					if (File.Exists($"{dataPath}/settings.yaml"))
+					if (File.Exists($"{dataPath}/settings.json"))
 					{
+						Trace.WriteLine("Loading settings file");
 						_current = JsonConvert.DeserializeObject<Config>(File.ReadAllText($"{dataPath}/settings.json"));
 					}
 
 					if (_current is null)
 					{
+						Trace.WriteLine("Creating new settings");
 						_current = new Config();
+#if DEBUG
+						_current.musicFolders.Add(dataPath + "/music");
+#else
+						_current.musicFolders.Add(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic).CleanPath());
+						// _current.musicFolders.Add(Environment.GetFolderPath(Environment.SpecialFolder.CommonMusic).CleanPath());
+#endif
 					}
 				}
 				return _current;
@@ -63,7 +72,7 @@ namespace Kirbo
 			}
 		}
 
-		public List<string> musicFolders = new List<string>() { dataPath + "/data/music" };
+		public List<string> musicFolders = new List<string>();
 
 		public void Save()
 		{
