@@ -20,12 +20,16 @@ namespace Kirbo
 		public MusicPlayer player;
 		public Database database;
 
+		public Random rng;
+
 		public MainWindow() : base("Kirbo")
 		{
 			current = this;
 
 			SetPosition(WindowPosition.Center);
 			SetDefaultSize(1280, 720);
+
+			rng = new Random(Guid.NewGuid().GetHashCode());
 
 			player = new MusicPlayer();
 			database = new Database();

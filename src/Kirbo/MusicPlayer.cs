@@ -8,21 +8,29 @@ namespace Kirbo
 {
 	public class MusicPlayer : IDisposable
 	{
-		const int MIN_SONG_POOL_COUNT = 2;
-		const int MAX_SONG_POOL_COUNT = 50;
+		const int PLAYLIST_SIZE_TO_TRY_USING_SMART_PICK = 10;
+		const int MIN_SMART_PICK_POOL_SIZE = 8;
+		const int MAX_SMART_PICK_POOL_SIZE = 10;
 
 		public Playlist? playlist;
 		public DatabaseSongEntry? currentSong;
 
-		public SongInsance mainSongInstance;
+		public SongInsance currentSongInstance;
+
+		public double volume { get => SongInsance.masterVolume; set => SongInsance.masterVolume = value; }
 
 		public MusicPlayer()
 		{
 			Bass.Init();
 
-			mainSongInstance = new SongInsance();
+			currentSongInstance = new SongInsance();
 
-			mainSongInstance.onFinish += s => PlayRandomSongFromPlaylist();
+			currentSongInstance.onFinish += s =>
+			{
+				Trace.WriteLine("Next song");
+
+				PlayRandomSongFromPlaylist();
+			};
 		}
 
 		public void LoadPlaylist(Playlist playlist)
@@ -36,101 +44,79 @@ namespace Kirbo
 
 			if (playlist is null) throw new Exception("USER Select a playlist first");
 
-			var rng = new Random(Guid.NewGuid().GetHashCode());
+			var pool = new List<DatabaseSongEntry>();
 
-			var playlistSongsCount = playlist.songs.Count;
-
-			// Pick a bunch of random songs from the playlist (at least 2)
-			var songPool = new List<DatabaseSongEntry>();
-			if (playlist.songs.Count < MIN_SONG_POOL_COUNT)
+			if (playlist.songs.Count >= PLAYLIST_SIZE_TO_TRY_USING_SMART_PICK)
 			{
-				Trace.WriteLine($"Generating pool directly from playlist");
-
-				songPool = playlist.songs.Select(s => s.referencedSong).Where(s => s is not null).ToList()!;
-
-				// If there are no valid songs then give up
-				if (songPool.Count == 0) throw new Exception("USER - Playlist contains no working songs");
-
-				// If there is only one valid song then just play that
-				if (songPool.Count == 1)
+				for (int i = 0; i < playlist.songs.Count; i++)
 				{
-					Trace.WriteLine($"Playlist only has one working song");
+					var song = playlist.songs.PickRandom().referencedSong;
+					if (song is null) continue;
 
-					PlaySong(songPool[0]);
+					pool.Add(song);
+
+					if (pool.Count >= MAX_SMART_PICK_POOL_SIZE) break;
+				}
+
+				// Choose using smart pick
+				if (pool.Count >= MIN_SMART_PICK_POOL_SIZE)
+				{
+					Trace.WriteLine("Choosing song using smart pick");
+
+					PlaySong(SmartPick(pool));
 					return;
 				}
+
+				pool.Clear();
 			}
-			else
+
+			// Choose using random pick
+			Trace.WriteLine("Choosing song using random pick");
+
+			pool.Concat(playlist.songs.Select(s => s.referencedSong).Where(s => s is not null));
+
+			var choosenSong = RandomPick(pool);
+			if (choosenSong is not null) PlaySong(choosenSong);
+			throw new Exception("Playlist has no working songs");
+		}
+
+		DatabaseSongEntry? RandomPick(IList<DatabaseSongEntry> pool)
+		{
+			if (pool.Count == 1) return pool[0];
+			if (pool.Count < 1) return null;
+
+			for (int i = 0; i < pool.Count + 2; i++)
 			{
-				Trace.WriteLine($"Generating pool from parts of playlist");
-
-				for (int t = 0; t < Math.Clamp(playlistSongsCount / 3, MIN_SONG_POOL_COUNT, MAX_SONG_POOL_COUNT); t++)
-				{
-					var playlistSong = playlist.songs[rng.Next(0, playlistSongsCount)];
-					var song = playlistSong.referencedSong;
-
-					// If the song file does not exsist then skip it
-					if (song is null)
-					{
-						Trace.WriteLine($"- Skiped '{playlistSong}' because it doesn't reference a song");
-						continue;
-					}
-
-					songPool.Add(song);
-				}
+				var song = pool.PickRandom();
+				if (song != currentSong) return song;
 			}
+			return null;
+		}
 
-			// If the pool has very few songs the just make the pool the array
-			if (songPool.Count < MIN_SONG_POOL_COUNT)
-			{
-				Trace.WriteLine($"Generating pool directly from playlist becuase it has less than {MIN_SONG_POOL_COUNT} songs");
+		DatabaseSongEntry SmartPick(IList<DatabaseSongEntry> pool)
+		{
+			if (pool.Count < 1) throw new ArgumentException("Pool must not be empty", nameof(pool));
 
-				songPool.Clear();
-				songPool = playlist.songs.Select(s => s.referencedSong).Where(s => s is not null).ToList()!;
-			}
+			var bestSong = pool[0];
+			if (!bestSong.lastPlayed.HasValue) return bestSong;
 
-			// If there are no valid songs then give up
-			if (songPool.Count == 0) throw new Exception("USER - Playlist contains no working songs");
-
-			// If there is only one valid song then just play that
-			if (songPool.Count == 1)
-			{
-				Trace.WriteLine($"Playing only working song from playlist");
-
-				PlaySong(songPool[0]);
-				return;
-			}
-
-			// Play the oldest song from the pool
-			Trace.WriteLine($"Choosing song based on freshness");
-			DatabaseSongEntry? bestSong = null;
-			foreach (var song in songPool)
+			foreach (var song in pool)
 			{
 				// If the song has never been played then play it
-				if (!song.lastPlayed.HasValue)
-				{
-					Trace.WriteLine($"- Playing song that has never been played");
+				if (!song.lastPlayed.HasValue) return song;
 
-					PlaySong(song);
-					return;
-				}
-
-				// If there has been no best song then set it
-				if (bestSong is null)
-				{
-					bestSong = song;
-					continue;
-				}
+				// Skip it if it was the song just played
+				if (song == currentSong) continue;
 
 				// If the song is older than the best song the choose that one
-				if (DateTime.Compare(song.lastPlayed.Value, bestSong.lastPlayed!.Value) < 0)
+				if (DateTime.Compare(song.lastPlayed.Value, bestSong.lastPlayed.Value) < 0)
 				{
 					bestSong = song;
 					continue;
 				}
 			}
 
-			PlaySong(bestSong!);
+			return bestSong;
 		}
 
 		public void PlaySong(DatabaseSongEntry song)
@@ -141,10 +127,9 @@ namespace Kirbo
 
 			currentSong = song;
 
-			mainSongInstance.Load(song.path);
+			currentSongInstance.Load(song.path);
 
-			mainSongInstance.volume = 0.5;
-			mainSongInstance.Play();
+			currentSongInstance.Play();
 		}
 
 		public void Dispose()

@@ -108,26 +108,33 @@ namespace Kirbo
 			{
 				var page = new ListBox();
 
-				var hbox = new HBox(false, 8);
-				var titleInput = new Entry(playlist.title);
-				titleInput.Changed += (sender, args) => playlist.title = titleInput.Text;
-				hbox.Add(titleInput);
-				var playButton = new Button(new Label("Play"));
-				playButton.Clicked += delegate
 				{
-					MainWindow.current.player.LoadPlaylist(playlist);
-					MainWindow.current.player.PlayRandomSongFromPlaylist();
-				};
-				hbox.Add(playButton);
-				page.Add(hbox);
-				var descInput = new Entry(playlist.description);
-				descInput.Changed += (sender, args) => playlist.description = descInput.Text;
-				page.Add(descInput);
+					var hbox = new HBox(false, 8);
+
+					var playButton = new Button(new Label("Play"));
+					playButton.Clicked += delegate
+					{
+						MainWindow.current.player.LoadPlaylist(playlist);
+						MainWindow.current.player.PlayRandomSongFromPlaylist();
+					};
+					hbox.Add(playButton);
+					var titleInput = new Entry(playlist.title);
+					titleInput.Changed += (sender, args) => playlist.title = titleInput.Text;
+					hbox.Add(titleInput);
+
+					page.Add(hbox);
+				}
+
+				{
+					var descInput = new Entry(playlist.description);
+					descInput.Changed += (sender, args) => playlist.description = descInput.Text;
+					page.Add(descInput);
+				}
 
 				var songListScroll = new ScrolledWindow();
 
-				var songsList = new TreeView() { HeadersClickable = true };
-				// songsList.HeadersVisible = false;
+				var songsList = new TreeView();
+				songsList.HeadersVisible = false;
 
 				var listStore = new ListStore(typeof(string), typeof(string), typeof(string));
 				songsList.Model = listStore;

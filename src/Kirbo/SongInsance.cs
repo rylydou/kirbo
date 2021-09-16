@@ -8,19 +8,39 @@ namespace Kirbo
 {
 	public class SongInsance : IDisposable
 	{
+		static double _masterVolume;
+		public static double masterVolume
+		{
+			get => _masterVolume;
+			set
+			{
+				if (_masterVolume != value)
+				{
+					_masterVolume = value;
+					_onMasterVolumeChanged.Invoke();
+				}
+			}
+		}
+		static Action _onMasterVolumeChanged = () => { };
+
 		public int handle { get; private set; }
 		public long length { get; private set; }
 		public TimeSpan duration { get; private set; }
 
 		public TimeSpan position { get => BytesToTimeSpan(Bass.ChannelGetPosition(handle)); set => Bass.ChannelSetPosition(handle, TimeSpanToBytes(value)); }
 
+		double _volume;
 		public double volume
 		{
-			get => Bass.ChannelGetAttribute(handle, ChannelAttribute.Volume);
+			get => _volume;
 			set
 			{
-				Bass.ChannelSetAttribute(handle, ChannelAttribute.Volume, value);
-				onPropertyChanged.Invoke(this);
+				if (_volume != value)
+				{
+					_volume = value;
+					SetVolume();
+					onPropertyChanged.Invoke(this);
+				}
 			}
 		}
 
@@ -39,6 +59,8 @@ namespace Kirbo
 		public SongInsance()
 		{
 			_syncContext = SynchronizationContext.Current;
+
+			_onMasterVolumeChanged += () => SetVolume();
 		}
 
 		public async Task<bool> LoadAsync(string file)
@@ -88,6 +110,8 @@ namespace Kirbo
 			length = Bass.ChannelGetLength(handle);
 			duration = BytesToTimeSpan(length);
 
+			Bass.ChannelSetAttribute(handle, ChannelAttribute.Volume, _volume);
+
 			onLoaded.Invoke(this);
 
 			return true;
@@ -130,6 +154,11 @@ namespace Kirbo
 				if (_syncContext == null) handler.Invoke();
 				else _syncContext.Post(S => handler.Invoke(), null);
 			};
+		}
+
+		void SetVolume()
+		{
+			Bass.ChannelSetAttribute(handle, ChannelAttribute.Volume, volume * masterVolume);
 		}
 	}
 }

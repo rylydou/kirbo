@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Kirbo
 {
@@ -31,5 +34,20 @@ namespace Kirbo
 		}
 
 		public static string CleanPath(this string str) => str.Replace('\\', '/');
+
+		public static T PickRandom<T>(this IList<T> list) => list[MainWindow.current.rng.Next(list.Count)];
+
+		public static T?[] ReadAsJArray<T>(this JsonReader reader)
+		{
+			var jArray = JArray.Load(reader);
+			var items = new List<T?>();
+
+			foreach (var token in jArray)
+			{
+				items.Add(token.Value<T>());
+			}
+
+			return items.ToArray();
+		}
 	}
 }

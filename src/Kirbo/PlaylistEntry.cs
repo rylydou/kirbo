@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Kirbo
 {
@@ -8,16 +9,28 @@ namespace Kirbo
 	{
 		public override PlaylistEntry? ReadJson(JsonReader reader, Type objectType, PlaylistEntry? existingValue, bool hasExistingValue, JsonSerializer serializer)
 		{
-			var value = reader.Value as string;
-			if (value is null) throw new JsonException("Item of type string was expected");
-			var sections = value.Split(',');
-			return new PlaylistEntry(sections[0], sections[1], sections[2]);
+			if (reader.TokenType != JsonToken.StartArray) throw new Exception();
+
+			var sections = reader.ReadAsJArray<string>();
+
+			if (sections.Length != 3) throw new Exception();
+
+			if (sections[0] is null) throw new Exception();
+			if (sections[1] is null) throw new Exception();
+			if (sections[2] is null) throw new Exception();
+
+			return new PlaylistEntry(sections[0]!, sections[1]!, sections[2]!);
 		}
 
 		public override void WriteJson(JsonWriter writer, PlaylistEntry? value, JsonSerializer serializer)
 		{
 			if (value is null) throw new ArgumentNullException(nameof(value));
-			writer.WriteValue(string.Concat(value.title, ',', value.artist, ',', value.album));
+
+			writer.WriteStartArray();
+			writer.WriteValue(value.title);
+			writer.WriteValue(value.artist);
+			writer.WriteValue(value.album);
+			writer.WriteEndArray();
 		}
 	}
 
