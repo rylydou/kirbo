@@ -22,7 +22,7 @@ namespace Kirbo
 		{
 			foreach (var song in songs)
 			{
-				song.playlist = this;
+				song.FindReferencedSong();
 			}
 		}
 

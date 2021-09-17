@@ -19,17 +19,23 @@ namespace Kirbo
 		{
 			this.playlist = playlist;
 
-			playButton = new Button(new Label("Play"));
-			playButton.Clicked += (sender, args) =>
 			{
-				MainWindow.current.player.LoadPlaylist(playlist);
-				MainWindow.current.player.PlayRandomSongFromPlaylist();
-			};
-			PackStart(playButton, false, false, 0);
+				var controls = new HBox();
 
-			titleEntry = new Entry(playlist.title);
-			titleEntry.Changed += (sender, args) => playlist.title = titleEntry.Text;
-			PackStart(titleEntry, false, false, 0);
+				playButton = new Button("Play");
+				playButton.Clicked += (sender, args) =>
+				{
+					MainWindow.current.player.LoadPlaylist(playlist);
+					MainWindow.current.player.PlayRandomSongFromPlaylist();
+				};
+				controls.PackStart(playButton, false, false, 0);
+
+				titleEntry = new Entry(playlist.title);
+				titleEntry.Changed += (sender, args) => playlist.title = titleEntry.Text;
+				controls.PackEnd(titleEntry, true, true, 0);
+
+				PackStart(controls, false, false, 0);
+			}
 
 			descriptionEntry = new TextView() { Editable = true, WrapMode = WrapMode.Word };
 			descriptionEntry.Buffer.Text = playlist.description;
@@ -67,8 +73,6 @@ namespace Kirbo
 			songListScroll.Add(songsTreeView);
 
 			PackEnd(songListScroll, true, true, 4);
-
-			// ShowAll();
 		}
 	}
 }

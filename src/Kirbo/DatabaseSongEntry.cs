@@ -52,6 +52,6 @@ namespace Kirbo
 			Trace.WriteLine($"Added song {this} to database");
 		}
 
-		public override string ToString() => $"{title}, {artist}, {album}, {path}";
+		public override string ToString() => $"'{title}' by '{artist}' from '{album}' at '{path}'";
 	}
 }

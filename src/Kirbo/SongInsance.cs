@@ -21,7 +21,7 @@ namespace Kirbo
 				}
 			}
 		}
-		static Action _onMasterVolumeChanged = () => { };
+		public static Action _onMasterVolumeChanged = () => { };
 
 		public int handle { get; private set; }
 		public long length { get; private set; }
@@ -136,6 +136,12 @@ namespace Kirbo
 		{
 			try { return Bass.ChannelPause(handle); }
 			finally { onStateChanged.Invoke(this); }
+		}
+
+		public bool TogglePause()
+		{
+			if (state == PlaybackState.Playing) return Pause();
+			return Play();
 		}
 
 		public bool Stop()

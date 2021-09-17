@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Gtk;
 
 namespace Kirbo
@@ -82,19 +83,63 @@ namespace Kirbo
 			titlebar.Title = "Kirbo";
 
 			{
-				var frame = new Frame();
-
+				var vbox = new VBox(false, 0);
 				{
-					var box = new HBox(false, 4);
+					var hBox = new HBox(false, 4);
 
-					box.Add(new Button("Play"));
-					box.Add(new Label("C418 - Minecraft - Beta"));
-					box.Add(new Button("Skip"));
+					var playButtonText = new Label("⏸");
+					player.currentSongInstance.onStateChanged += s =>
+					{
+						switch (s.state)
+						{
+							case ManagedBass.PlaybackState.Stopped:
+							case ManagedBass.PlaybackState.Paused:
+								playButtonText.Text = "▶";
+								break;
+							case ManagedBass.PlaybackState.Playing:
+								playButtonText.Text = "⏸";
+								break;
+							case ManagedBass.PlaybackState.Stalled:
+								playButtonText.Text = "…";
+								break;
+						}
+					};
+					var playButton = new Button(playButtonText);
+					playButton.Clicked += (sender, args) => player.currentSongInstance.TogglePause();
+					hBox.PackStart(playButton, false, false, 0);
+					var songInfoText = new Label("No song playing") { WidthRequest = 180 };
+					player.onSongStarted += s =>
+					{
+						var sb = new StringBuilder(s.title);
 
-					frame.Add(box);
+						if (!string.IsNullOrEmpty(s.album))
+						{
+							sb.Append(" - ");
+							sb.Append(s.album);
+						}
+
+						if (!string.IsNullOrEmpty(s.artist))
+						{
+							sb.Append(" - ");
+							sb.Append(s.artist);
+						}
+
+						songInfoText.Text = sb.ToString();
+					};
+					hBox.PackStart(songInfoText, true, true, 0);
+
+					var skipButton = new Button("⏭");
+					skipButton.Clicked += (sender, args) => player.PlayRandomSongFromPlaylist();
+					hBox.PackEnd(skipButton, false, false, 0);
+
+					vbox.PackStart(hBox, true, true, 0);
 				}
 
-				titlebar.Add(frame);
+				var songProgressbar = new ProgressBar();
+				player.currentSongInstance.onPositionChanged += s => songProgressbar.Fraction = s.position / s.duration;
+				vbox.PackEnd(songProgressbar, false, false, 0);
+
+				titlebar.Add(vbox);
 			}
 
 			Titlebar = titlebar;

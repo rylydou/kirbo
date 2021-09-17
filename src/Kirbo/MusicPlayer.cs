@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Gtk;
 using ManagedBass;
+using Range = Gtk.Range;
 
 namespace Kirbo
 {
@@ -17,7 +19,8 @@ namespace Kirbo
 
 		public SongInsance currentSongInstance;
 
-		public double volume { get => SongInsance.masterVolume; set => SongInsance.masterVolume = value; }
+		public Action<Playlist> onPlaylistsChanged = p => { };
+		public Action<DatabaseSongEntry> onSongStarted = s => { };
 
 		public MusicPlayer()
 		{
@@ -35,7 +38,11 @@ namespace Kirbo
 
 		public void LoadPlaylist(Playlist playlist)
 		{
+			if (playlist == this.playlist) return;
+
 			this.playlist = playlist;
+
+			onPlaylistsChanged.Invoke(playlist);
 		}
 
 		public void PlayRandomSongFromPlaylist()
@@ -73,10 +80,20 @@ namespace Kirbo
 			// Choose using random pick
 			Trace.WriteLine("Choosing song using random pick");
 
-			pool.Concat(playlist.songs.Select(s => s.referencedSong).Where(s => s is not null));
+			foreach (var song in playlist.songs)
+			{
+				var refSong = song.referencedSong;
+				if (refSong is null) continue;
+				pool.Add(refSong);
+			}
 
 			var choosenSong = RandomPick(pool);
-			if (choosenSong is not null) PlaySong(choosenSong);
+			if (choosenSong is not null)
+			{
+				PlaySong(choosenSong);
+				return;
+			}
+
 			throw new Exception("Playlist has no working songs");
 		}
 
@@ -90,6 +107,7 @@ namespace Kirbo
 				var song = pool.PickRandom();
 				if (song != currentSong) return song;
 			}
+			Trace.WriteLine("Could not find songs that is not the current song in a resonable time");
 			return null;
 		}
 
@@ -130,6 +148,8 @@ namespace Kirbo
 			currentSongInstance.Load(song.path);
 
 			currentSongInstance.Play();
+
+			onSongStarted.Invoke(song);
 		}
 
 		public void Dispose()

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -37,8 +38,6 @@ namespace Kirbo
 	[DataContract]
 	public class PlaylistEntry
 	{
-		public Playlist? playlist;
-
 		public readonly string title;
 		public readonly string artist;
 		public readonly string album;
@@ -47,38 +46,7 @@ namespace Kirbo
 		public readonly string systemArtist;
 		public readonly string systemAlbum;
 
-		bool _songFound;
-
-		public bool? hasNoReference { get; private set; }
-		DatabaseSongEntry? _referencedSong;
-		public DatabaseSongEntry? referencedSong
-		{
-			get
-			{
-				if (!_songFound)
-				{
-					// Find songs with the same title
-					if (!MainWindow.current.database.titleToSong.TryGetValue(systemTitle, out var songsWithTitle)) return null;
-					// If it the only one then its been found
-					if (songsWithTitle.Count == 1) return FoundSong(songsWithTitle[0]);
-
-					// Find the song by title and artist
-					// Find all the songs with that name by the artist
-					var songsWithTitleByArtist = songsWithTitle.FindAll(s => s.systemArtist == systemArtist);
-					if (songsWithTitleByArtist.Count > 0)
-					{
-						// If it is the only one then its been found
-						if (songsWithTitleByArtist.Count == 1) return FoundSong(songsWithTitleByArtist[0]);
-						// Find the song by title artist and album
-						return FoundSong(songsWithTitleByArtist.Find(s => s.systemAlbum == systemAlbum));
-					}
-
-					// Find song by title and album, an album should never have multiple songs with the same name
-					return FoundSong(songsWithTitle.Find(s => s.systemAlbum == systemAlbum));
-				}
-				return _referencedSong;
-			}
-		}
+		public DatabaseSongEntry? referencedSong { get; private set; }
 
 		public PlaylistEntry(string title, string artist = "", string album = "")
 		{
@@ -89,20 +57,50 @@ namespace Kirbo
 			this.systemTitle = title.ToSystem();
 			this.systemArtist = artist.ToSystem();
 			this.systemAlbum = album.ToSystem();
+
+			Trace.WriteLine($"Added {this} to playlist");
 		}
 
-		DatabaseSongEntry? FoundSong(DatabaseSongEntry? song)
+		public override string ToString() => $"'{title}' by '{artist}' from '{album}'";
+
+		public void FindReferencedSong()
 		{
-			_songFound = true;
-			if (song is null)
+			// Find songs with the same title
+			if (!MainWindow.current.database.titleToSong.TryGetValue(systemTitle, out var songsWithTitle))
 			{
-				hasNoReference = true;
-				return null;
-			}
-			_referencedSong = song;
-			return _referencedSong;
-		}
+				Trace.WriteLine($"No songs titled '{systemTitle}'");
 
-		public override string ToString() => $"{title}, {artist}, {album}";
+				referencedSong = null;
+				return;
+			}
+
+			// If it the only one then its been found
+			if (songsWithTitle.Count == 1)
+			{
+				Trace.WriteLine($"Found only song titled '{systemTitle}'");
+
+				referencedSong = songsWithTitle[0];
+				return;
+			}
+
+			// Find the song by title and artist
+			// Find all the songs with that name by the artist
+			var songsWithTitleByArtist = songsWithTitle.FindAll(s => s.systemArtist == systemArtist);
+			if (songsWithTitleByArtist.Count > 0)
+			{
+				// Find the song by title artist and album
+				referencedSong = songsWithTitleByArtist.Find(s => s.systemAlbum == systemAlbum);
+				if (referencedSong is not null)
+				{
+					Trace.WriteLineIf(referencedSong is not null, $"Found song by '{systemArtist}' titled '{systemTitle}'");
+					return;
+				}
+			}
+
+			// Find song by title and album, an album should never have multiple songs with the same name
+			referencedSong = songsWithTitle.Find(s => s.systemAlbum == systemAlbum);
+			Trace.WriteLineIf(referencedSong is not null, $"Found song by '{systemArtist}' titled '{systemTitle}' in '{systemAlbum}'");
+			Trace.WriteLineIf(referencedSong is null, $"Could not find song by '{systemArtist}' titled '{systemTitle}' in '{systemAlbum}'");
+		}
 	}
 }
