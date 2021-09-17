@@ -15,9 +15,7 @@ namespace Kirbo
 		public Dictionary<string, List<DatabaseSongEntry>> artistToSong = new Dictionary<string, List<DatabaseSongEntry>>();
 		public Dictionary<string, List<DatabaseSongEntry>> albumToSong = new Dictionary<string, List<DatabaseSongEntry>>();
 
-		public Database()
-		{
-		}
+		public Database() { }
 
 		public void Save()
 		{
@@ -68,8 +66,7 @@ namespace Kirbo
 			{
 				var page = new ScrolledWindow();
 
-				var allMusicList = new TreeView() { HeadersClickable = true };
-				// songsList.HeadersVisible = false;
+				var allMusicList = new TreeView() { HeadersVisible = false };
 
 				var listStore = new ListStore(typeof(string), typeof(string), typeof(string), typeof(string));
 				allMusicList.Model = listStore;
@@ -106,63 +103,7 @@ namespace Kirbo
 
 			foreach (var playlist in playlists)
 			{
-				var page = new ListBox();
-
-				{
-					var hbox = new HBox(false, 8);
-
-					var playButton = new Button(new Label("Play"));
-					playButton.Clicked += delegate
-					{
-						MainWindow.current.player.LoadPlaylist(playlist);
-						MainWindow.current.player.PlayRandomSongFromPlaylist();
-					};
-					hbox.Add(playButton);
-					var titleInput = new Entry(playlist.title);
-					titleInput.Changed += (sender, args) => playlist.title = titleInput.Text;
-					hbox.Add(titleInput);
-
-					page.Add(hbox);
-				}
-
-				{
-					var descInput = new Entry(playlist.description);
-					descInput.Changed += (sender, args) => playlist.description = descInput.Text;
-					page.Add(descInput);
-				}
-
-				var songListScroll = new ScrolledWindow();
-
-				var songsList = new TreeView();
-				songsList.HeadersVisible = false;
-
-				var listStore = new ListStore(typeof(string), typeof(string), typeof(string));
-				songsList.Model = listStore;
-
-				var titleCellView = new CellRendererText();
-				var titleColumn = new TreeViewColumn("Title", titleCellView);
-				titleColumn.AddAttribute(titleCellView, "text", 0);
-				songsList.AppendColumn(titleColumn);
-
-				var artistCellView = new CellRendererText();
-				var artistColumn = new TreeViewColumn("Artist", artistCellView);
-				artistColumn.AddAttribute(artistCellView, "text", 1);
-				songsList.AppendColumn(artistColumn);
-
-				var albumCellView = new CellRendererText();
-				var albumColumn = new TreeViewColumn("Album", albumCellView);
-				albumColumn.AddAttribute(albumCellView, "text", 2);
-				songsList.AppendColumn(albumColumn);
-
-				foreach (var song in playlist.songs)
-				{
-					listStore.AppendValues(song.title, song.artist, song.album);
-				}
-
-				songListScroll.Add(songsList);
-
-				page.Add(songListScroll);
-				playlistsNotebook.AppendPage(page, new Label(playlist.title));
+				playlistsNotebook.AppendPage(new PlaylistsView(playlist), new Label(playlist.title));
 			}
 		}
 	}

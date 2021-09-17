@@ -18,9 +18,6 @@ namespace Kirbo
 		[STAThread]
 		public static void Main(string[] args)
 		{
-#if DEBUG
-			Run();
-#else
 			try
 			{
 				Run();
@@ -28,8 +25,10 @@ namespace Kirbo
 			catch (Exception e)
 			{
 				System.IO.File.WriteAllText(Environment.CurrentDirectory + "/crash.log", e.ToString());
-			}
+#if DEBUG
+				throw;
 #endif
+			}
 		}
 
 		public static void Run()

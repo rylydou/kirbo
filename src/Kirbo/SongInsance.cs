@@ -8,7 +8,7 @@ namespace Kirbo
 {
 	public class SongInsance : IDisposable
 	{
-		static double _masterVolume;
+		static double _masterVolume = 0.5;
 		public static double masterVolume
 		{
 			get => _masterVolume;
@@ -29,7 +29,7 @@ namespace Kirbo
 
 		public TimeSpan position { get => BytesToTimeSpan(Bass.ChannelGetPosition(handle)); set => Bass.ChannelSetPosition(handle, TimeSpanToBytes(value)); }
 
-		double _volume;
+		double _volume = 1.0;
 		public double volume
 		{
 			get => _volume;
@@ -51,6 +51,7 @@ namespace Kirbo
 		public Action<SongInsance> onLoaded = s => { };
 		public Action<SongInsance> onError = s => { };
 		public Action<SongInsance> onDisposed = s => { };
+		public Action<SongInsance> onPositionChanged = s => { };
 
 		public Action<SongInsance> onPropertyChanged = s => { };
 
@@ -84,6 +85,8 @@ namespace Kirbo
 			length = Bass.ChannelGetLength(handle);
 			duration = BytesToTimeSpan(length);
 
+			SetVolume();
+
 			onLoaded.Invoke(this);
 
 			return true;
@@ -106,11 +109,12 @@ namespace Kirbo
 			Bass.ChannelSetSync(handle, SyncFlags.Free, 0, GetSyncProcedure(() => onDisposed.Invoke(this)));
 			Bass.ChannelSetSync(handle, SyncFlags.Stop, 0, GetSyncProcedure(() => onError.Invoke(this)));
 			Bass.ChannelSetSync(handle, SyncFlags.End, 0, GetSyncProcedure(() => { onFinish.Invoke(this); onStateChanged.Invoke(this); }));
+			Bass.ChannelSetSync(handle, SyncFlags.Position, 0, GetSyncProcedure(() => onPositionChanged.Invoke(this)));
 
 			length = Bass.ChannelGetLength(handle);
 			duration = BytesToTimeSpan(length);
 
-			Bass.ChannelSetAttribute(handle, ChannelAttribute.Volume, _volume);
+			SetVolume();
 
 			onLoaded.Invoke(this);
 

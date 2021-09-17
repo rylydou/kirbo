@@ -49,9 +49,9 @@ namespace Kirbo
 
 					// Playlists
 					{
-						var playlistsPanel = new Stack() { WidthRequest = 360 };
+						var playlistsPanel = new Stack();
 
-						playlistsNotebook = new Notebook() { WidthRequest = 360 };
+						playlistsNotebook = new Notebook();
 						playlistsNotebook.TabPos = PositionType.Left;
 
 						database.UpdateUI(playlistsNotebook);

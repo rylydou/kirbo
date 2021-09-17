@@ -103,6 +103,6 @@ namespace Kirbo
 			return _referencedSong;
 		}
 
-		public override string ToString() => $"{title} {artist} {album}";
+		public override string ToString() => $"{title}, {artist}, {album}";
 	}
 }
