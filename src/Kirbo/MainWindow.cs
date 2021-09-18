@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using Gtk;
 
 namespace Kirbo
@@ -20,6 +22,12 @@ namespace Kirbo
 
 		public MusicPlayer player;
 		public Database database;
+
+		// Timer tickTimer;
+
+		Label songProgressText;
+		Label songDurationText;
+		ProgressBar songProgressbar;
 
 		public Random rng;
 
@@ -107,7 +115,7 @@ namespace Kirbo
 					var playButton = new Button(playButtonText);
 					playButton.Clicked += (sender, args) => player.currentSongInstance.TogglePause();
 					hBox.PackStart(playButton, false, false, 0);
-					var songInfoText = new Label("No song playing") { WidthRequest = 180 };
+					var songInfoText = new Label("No song playing") { WidthRequest = 260 };
 					player.onSongStarted += s =>
 					{
 						var sb = new StringBuilder(s.title);
@@ -135,11 +143,27 @@ namespace Kirbo
 					vbox.PackStart(hBox, true, true, 0);
 				}
 
-				var songProgressbar = new ProgressBar();
-				player.currentSongInstance.onPositionChanged += s => songProgressbar.Fraction = s.position / s.duration;
-				vbox.PackEnd(songProgressbar, false, false, 0);
+				{
+					var hbox = new HBox();
+
+					songProgressText = new Label("--:--");
+					hbox.PackStart(songProgressText, false, false, 0);
+
+					songProgressbar = new ProgressBar();
+					hbox.PackStart(songProgressbar, true, true, 0);
+
+					songDurationText = new Label("--:--");
+					hbox.PackEnd(songDurationText, false, false, 0);
+
+					vbox.PackEnd(hbox, false, false, 0);
+				}
 
 				titlebar.Add(vbox);
+
+				var volumeSlider = new HScale(0, 100, 10) { Value = SongInsance.masterVolume * 100 };
+				volumeSlider.ChangeValue += (sender, args) => SongInsance.masterVolume = volumeSlider.Value / 100;
+
+				titlebar.Add(volumeSlider);
 			}
 
 			Titlebar = titlebar;
@@ -154,6 +178,8 @@ namespace Kirbo
 				StyleContext.AddProviderForScreen(Screen, resetProvider, int.MaxValue - 1);
 				StyleContext.AddProviderForScreen(Screen, styleProvider, int.MaxValue);
 			}
+
+			// tickTimer = new Timer(t => Tick(), null, 1000, 100);
 		}
 
 		protected override void OnDestroyed()
@@ -174,6 +200,15 @@ namespace Kirbo
 				ReloadStyles();
 
 			base.OnFocusActivated();
+		}
+
+		void Tick()
+		{
+			var position = player.currentSongInstance.position;
+
+			songProgressText.Text = position.ToString(@"mm\:ss");
+			songDurationText.Text = player.currentSongInstance.duration.ToString(@"mm\:ss");
+			songProgressbar.Fraction = position / player.currentSongInstance.duration;
 		}
 
 		void ReloadStyles()

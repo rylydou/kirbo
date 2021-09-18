@@ -51,7 +51,7 @@ namespace Kirbo
 		public Action<SongInsance> onLoaded = s => { };
 		public Action<SongInsance> onError = s => { };
 		public Action<SongInsance> onDisposed = s => { };
-		public Action<SongInsance> onPositionChanged = s => { };
+		// public Action<SongInsance> onPositionChanged = s => { };
 
 		public Action<SongInsance> onPropertyChanged = s => { };
 
@@ -109,7 +109,6 @@ namespace Kirbo
 			Bass.ChannelSetSync(handle, SyncFlags.Free, 0, GetSyncProcedure(() => onDisposed.Invoke(this)));
 			Bass.ChannelSetSync(handle, SyncFlags.Stop, 0, GetSyncProcedure(() => onError.Invoke(this)));
 			Bass.ChannelSetSync(handle, SyncFlags.End, 0, GetSyncProcedure(() => { onFinish.Invoke(this); onStateChanged.Invoke(this); }));
-			Bass.ChannelSetSync(handle, SyncFlags.Position, 0, GetSyncProcedure(() => onPositionChanged.Invoke(this)));
 
 			length = Bass.ChannelGetLength(handle);
 			duration = BytesToTimeSpan(length);

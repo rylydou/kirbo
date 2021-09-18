@@ -74,6 +74,8 @@ namespace Kirbo
 
 		public List<string> musicFolders = new List<string>();
 
+		public string downloadFolder = "";
+
 		public void Save()
 		{
 			File.WriteAllText($"{dataPath}/settings.json", JsonConvert.SerializeObject(_current));
