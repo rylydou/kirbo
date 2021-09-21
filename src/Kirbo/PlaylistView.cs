@@ -4,7 +4,7 @@ using UI = Gtk.Builder.ObjectAttribute;
 
 namespace Kirbo
 {
-	public class PlaylistView : Bin
+	public class PlaylistView : Box
 	{
 		public readonly Playlist playlist;
 
@@ -41,6 +41,8 @@ namespace Kirbo
 			{
 				_songsList.AppendValues(song.title, song.artist, song.album);
 			}
+
+			ShowAll();
 		}
 	}
 }
