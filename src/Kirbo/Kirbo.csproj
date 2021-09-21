@@ -15,6 +15,13 @@
 		<PackageReference Include="z440.atl.core" Version="3.24.0" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Remove="**\*.glade" />
+		<EmbeddedResource Include="**\*.glade">
+			<LogicalName>%(Filename)%(Extension)</LogicalName>
+		</EmbeddedResource>
+	</ItemGroup>
+
 	<!-- Condition="'$(RuntimeIdentifier)' == 'win-x64'" -->
 	<ItemGroup>
 		<Content Include="deps/win-x64/**" Link="/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />

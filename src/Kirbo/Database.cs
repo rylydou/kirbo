@@ -54,57 +54,5 @@ namespace Kirbo
 				playlists.Add(playlist);
 			}
 		}
-
-		public void UpdateUI(Notebook playlistsNotebook)
-		{
-			for (int i = playlistsNotebook.NPages - 1; i >= 0; i--)
-			{
-				playlistsNotebook.RemovePage(i);
-			}
-
-			// Generate all music
-			{
-				var page = new ScrolledWindow();
-
-				var allMusicList = new TreeView() { HeadersVisible = false };
-
-				var listStore = new ListStore(typeof(string), typeof(string), typeof(string), typeof(string));
-				allMusicList.Model = listStore;
-
-				var titleCellView = new CellRendererText();
-				var titleColumn = new TreeViewColumn("Title", titleCellView);
-				titleColumn.AddAttribute(titleCellView, "text", 0);
-				allMusicList.AppendColumn(titleColumn);
-
-				var artistCellView = new CellRendererText();
-				var artistColumn = new TreeViewColumn("Artist", artistCellView);
-				artistColumn.AddAttribute(artistCellView, "text", 1);
-				allMusicList.AppendColumn(artistColumn);
-
-				var albumCellView = new CellRendererText();
-				var albumColumn = new TreeViewColumn("Album", albumCellView);
-				albumColumn.AddAttribute(albumCellView, "text", 2);
-				allMusicList.AppendColumn(albumColumn);
-
-				var pathCellView = new CellRendererText();
-				var pathColumn = new TreeViewColumn("Location", pathCellView);
-				pathColumn.AddAttribute(pathCellView, "text", 3);
-				allMusicList.AppendColumn(pathColumn);
-
-				foreach (var song in MainWindow.current.database.songs)
-				{
-					listStore.AppendValues(song.title, song.artist, song.album, song.path);
-				}
-
-				page.Add(allMusicList);
-
-				playlistsNotebook.AppendPage(page, new Label("All Music"));
-			}
-
-			foreach (var playlist in playlists)
-			{
-				playlistsNotebook.AppendPage(new PlaylistsView(playlist), new Label(playlist.title));
-			}
-		}
 	}
 }
