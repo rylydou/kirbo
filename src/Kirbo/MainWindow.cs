@@ -31,7 +31,8 @@ namespace Kirbo
 		[UI] Image status_state_image;
 		[UI] Button status_skip;
 
-		[UI] Label status_info;
+		[UI] Label status_title;
+		[UI] Label status_artist;
 		[UI] Label status_position;
 		[UI] ProgressBar status_bar;
 		[UI] Label status_duration;
@@ -96,25 +97,10 @@ namespace Kirbo
 
 			player.onSongStarted += (s) =>
 			{
-				var sb = new StringBuilder();
-
-				sb.Append(s.title);
-
-				if (!string.IsNullOrEmpty(s.album))
-				{
-					sb.Append(" - ");
-					sb.Append(s.album);
-				}
-
-				if (!string.IsNullOrEmpty(s.artist))
-				{
-					sb.Append(" - ");
-					sb.Append(s.artist);
-				}
+				status_title.Text = s.title;
+				status_artist.Text = s.artist;
 
 				status_duration.Text = player.currentSongInstance.duration.ToString(@"mm\:ss");
-
-				status_info.Text = sb.ToString();
 			};
 
 			foreach (var song in database.songs)
@@ -150,8 +136,6 @@ namespace Kirbo
 		{
 			if (player.currentSongInstance.state == ManagedBass.PlaybackState.Playing)
 			{
-				Trace.WriteLine("Updated");
-
 				var position = player.currentSongInstance.position;
 
 				status_position.Text = position.ToString(@"mm\:ss");

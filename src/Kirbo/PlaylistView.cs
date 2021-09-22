@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
 
@@ -44,6 +45,7 @@ namespace Kirbo
 
 			foreach (var song in playlist.songs)
 			{
+				Trace.WriteLine("Adding to playlist " + song);
 				songsList.AppendValues(song.title, song.artist, song.album);
 			}
 		}
