@@ -2,8 +2,8 @@
 <!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkTextBuffer" id="_description"/>
-  <object class="GtkListStore" id="_songsList">
+  <object class="GtkTextBuffer" id="description"/>
+  <object class="GtkListStore" id="songsList">
     <columns>
       <!-- column-name title -->
       <column type="gchararray"/>
@@ -13,7 +13,7 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkEntryBuffer" id="_title"/>
+  <object class="GtkEntryBuffer" id="title"/>
   <object class="GtkBox" id="PlaylistView">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -23,12 +23,12 @@
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <child>
-          <object class="GtkButton" id="_playButton">
+          <object class="GtkButton" id="playButton">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <child>
-              <object class="GtkImage" id="_coverImage">
+              <object class="GtkImage" id="coverImage">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="pixel-size">64</property>
@@ -47,7 +47,7 @@
           <object class="GtkEntry">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="buffer">_title</property>
+            <property name="buffer">title</property>
             <property name="placeholder-text" translatable="yes">Untitled Playlist</property>
           </object>
           <packing>
@@ -64,7 +64,7 @@
       </packing>
     </child>
     <child>
-      <object class="GtkTextView">
+      <object class="GtkTextView" id="descriptionView">
         <property name="visible">True</property>
         <property name="can-focus">True</property>
         <property name="wrap-mode">word</property>
@@ -72,7 +72,7 @@
         <property name="right-margin">4</property>
         <property name="top-margin">5</property>
         <property name="bottom-margin">4</property>
-        <property name="buffer">_description</property>
+        <property name="buffer">description</property>
         <property name="input-hints">GTK_INPUT_HINT_SPELLCHECK | GTK_INPUT_HINT_WORD_COMPLETION | GTK_INPUT_HINT_EMOJI | GTK_INPUT_HINT_NONE</property>
       </object>
       <packing>
@@ -89,10 +89,10 @@
         <property name="vscrollbar-policy">always</property>
         <property name="shadow-type">in</property>
         <child>
-          <object class="GtkTreeView">
+          <object class="GtkTreeView" id="songListView">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
-            <property name="model">_songsList</property>
+            <property name="model">songsList</property>
             <property name="enable-grid-lines">horizontal</property>
             <child internal-child="selection">
               <object class="GtkTreeSelection"/>

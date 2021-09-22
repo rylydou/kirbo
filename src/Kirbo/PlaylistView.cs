@@ -8,41 +8,44 @@ namespace Kirbo
 	{
 		public readonly Playlist playlist;
 
-#nullable disable
-		[UI] EntryBuffer _title;
-		[UI] TextBuffer _description;
+		Label tabLable;
 
-		[UI] Button _playButton;
-		// [UI] Image _coverImage;
-		[UI] ListStore _songsList;
+#nullable disable
+		[UI] EntryBuffer title;
+		[UI] TextBuffer description;
+		[UI] ListStore songsList;
+
+		[UI] Button playButton;
+		[UI] Image coverImage;
+		[UI] TextView descriptionView;
+		[UI] TreeView songListView;
 #nullable enable
 
-		public PlaylistView(Playlist playlist) : this(playlist, new Builder("PlaylistView.glade")) { }
-		PlaylistView(Playlist playlist, Builder builder) : base(builder.GetRawOwnedObject("PlaylistView"))
+		public PlaylistView(Playlist playlist, Label tabLable) : this(playlist, tabLable, new Builder("PlaylistView.glade")) { }
+		PlaylistView(Playlist playlist, Label tabLable, Builder builder) : base(builder.GetRawOwnedObject("PlaylistView"))
 		{
 			this.playlist = playlist;
+			this.tabLable = tabLable;
 
 			builder.Autoconnect(this);
 
-			_title.Text = playlist.title;
-			_title.InsertedText += (sender, args) => playlist.title = _title.Text;
-			_title.DeletedText += (sender, args) => playlist.title = _title.Text;
+			title.Text = playlist.title;
+			title.InsertedText += (sender, args) => playlist.title = title.Text;
+			title.DeletedText += (sender, args) => playlist.title = title.Text;
 
-			_description.Text = playlist.description;
-			_description.Changed += (sender, args) => playlist.description = _description.Text;
-
-			_playButton.Clicked += (sender, args) =>
+			playButton.Clicked += (sender, args) =>
 			{
 				MainWindow.current.player.LoadPlaylist(playlist);
 				MainWindow.current.player.PlayRandomSongFromPlaylist();
 			};
 
+			description.Text = playlist.description;
+			description.Changed += (sender, args) => playlist.description = description.Text;
+
 			foreach (var song in playlist.songs)
 			{
-				_songsList.AppendValues(song.title, song.artist, song.album);
+				songsList.AppendValues(song.title, song.artist, song.album);
 			}
-
-			ShowAll();
 		}
 	}
 }

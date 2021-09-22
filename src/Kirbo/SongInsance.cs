@@ -17,11 +17,11 @@ namespace Kirbo
 				if (_masterVolume != value)
 				{
 					_masterVolume = value;
-					_onMasterVolumeChanged.Invoke();
+					onMasterVolumeChanged.Invoke();
 				}
 			}
 		}
-		public static Action _onMasterVolumeChanged = () => { };
+		public static Action onMasterVolumeChanged = () => { };
 
 		public int handle { get; private set; }
 		public long length { get; private set; }
@@ -61,7 +61,7 @@ namespace Kirbo
 		{
 			_syncContext = SynchronizationContext.Current;
 
-			_onMasterVolumeChanged += () => SetVolume();
+			onMasterVolumeChanged += () => SetVolume();
 		}
 
 		public async Task<bool> LoadAsync(string file)

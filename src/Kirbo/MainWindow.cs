@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Gtk;
 using UI = Gtk.Builder.ObjectAttribute;
 
@@ -18,23 +19,30 @@ namespace Kirbo
 		public Database database;
 		public Random rng;
 
-		Timer tickTimer;
+		Timer? tickTimer;
 
 		// Nullable hacks
 #nullable disable
 		public static MainWindow current;
 
-		[UI] ListStore _musicList;
+		[UI] ListStore musicList;
 
-		[UI] Label _status_info;
-		[UI] Label _status_position;
-		[UI] Label _status_duration;
-		[UI] ProgressBar _status_bar;
-		[UI] Adjustment _volume;
+		[UI] Button status_state;
+		[UI] Image status_state_image;
+		[UI] Button status_skip;
 
-		[UI] Notebook _page_music;
+		[UI] Label status_info;
+		[UI] Label status_position;
+		[UI] ProgressBar status_bar;
+		[UI] Label status_duration;
 
-		[UI] SearchEntry _page_music_all_filter;
+		[UI] Adjustment volume;
+
+		[UI] Notebook page_music;
+		[UI] Button page_music_add;
+		[UI] Button page_music_delete;
+
+		[UI] SearchEntry page_music_all_filter;
 #nullable enable
 
 		public MainWindow() : this(new Builder("MainWindow.glade")) { }
@@ -50,17 +58,79 @@ namespace Kirbo
 			database = new Database();
 			database.ReloadAll();
 
+			status_state.Clicked += (sender, args) =>
+			{
+				player.currentSongInstance.TogglePause();
+			};
+
+			player.currentSongInstance.onStateChanged += (s) =>
+			{
+				switch (s.state)
+				{
+					case ManagedBass.PlaybackState.Playing:
+						status_state_image.SetFromIconName("media-playback-pause-symbolic", IconSize.Button);
+						break;
+					case ManagedBass.PlaybackState.Stalled:
+						status_state_image.SetFromIconName("emblem-synchronizing-symbolic", IconSize.Button);
+						break;
+					case ManagedBass.PlaybackState.Stopped:
+					case ManagedBass.PlaybackState.Paused:
+						status_state_image.SetFromIconName("media-playback-start-symbolic", IconSize.Button);
+						break;
+				}
+			};
+
+			status_skip.Clicked += (sender, args) =>
+			{
+				if (player.playlist is not null)
+				{
+					player.PlayRandomSongFromPlaylist();
+				}
+			};
+
+			volume.Value = SongInsance.masterVolume * 100;
+			volume.ValueChanged += (sender, args) =>
+			{
+				SongInsance.masterVolume = volume.Value / 100;
+			};
+
+			player.onSongStarted += (s) =>
+			{
+				var sb = new StringBuilder();
+
+				sb.Append(s.title);
+
+				if (!string.IsNullOrEmpty(s.album))
+				{
+					sb.Append(" - ");
+					sb.Append(s.album);
+				}
+
+				if (!string.IsNullOrEmpty(s.artist))
+				{
+					sb.Append(" - ");
+					sb.Append(s.artist);
+				}
+
+				status_duration.Text = player.currentSongInstance.duration.ToString(@"mm\:ss");
+
+				status_info.Text = sb.ToString();
+			};
+
 			foreach (var song in database.songs)
 			{
-				_musicList.AppendValues(song.title, song.artist, song.album, song.path);
+				musicList.AppendValues(song.title, song.artist, song.album, song.path);
 			}
 
 			foreach (var playlist in database.playlists)
 			{
-				_page_music.AppendPage(new Label(playlist.title), new PlaylistView(playlist));
+				var lable = new Label(playlist.title);
+				var playlistView = new PlaylistView(playlist, lable);
+
+				page_music.AppendPage(playlistView, lable);
 			}
 
-			_page_music.ShowAll();
+			page_music.ShowAll();
 
 			resetProvider = new CssProvider();
 			styleProvider = new CssProvider();
@@ -73,35 +143,22 @@ namespace Kirbo
 				StyleContext.AddProviderForScreen(Screen, styleProvider, int.MaxValue);
 			}
 
-			tickTimer = new Timer(t => Tick(), null, 1000, 1000);
-		}
-
-		protected override void OnDestroyed()
-		{
-			player.Dispose();
-
-			Config.current.Save();
-			database.Save();
-
-			Application.Quit();
-
-			base.OnDestroyed();
-		}
-
-		protected override void OnFocusActivated()
-		{
-			if (ENABLE_CUSTOM_STYLES) ReloadStyles();
-
-			base.OnFocusActivated();
+			Tick();
 		}
 
 		void Tick()
 		{
-			// var position = player.currentSongInstance.position;
+			if (player.currentSongInstance.state == ManagedBass.PlaybackState.Playing)
+			{
+				Trace.WriteLine("Updated");
 
-			// _status_position.Text = position.ToString(@"mm\:ss");
-			// _status_duration.Text = player.currentSongInstance.duration.ToString(@"mm\:ss");
-			// _status_bar.Fraction = position / player.currentSongInstance.duration;
+				var position = player.currentSongInstance.position;
+
+				status_position.Text = position.ToString(@"mm\:ss");
+				status_bar.Fraction = position / player.currentSongInstance.duration;
+			}
+
+			Task.Delay(1000).ContinueWith(t => Tick());
 		}
 
 		void ReloadStyles()
@@ -126,6 +183,25 @@ namespace Kirbo
 				Console.WriteLine(e);
 				resetProvider.LoadFromData(string.Empty);
 			}
+		}
+
+		protected override void OnDestroyed()
+		{
+			player.Dispose();
+
+			Config.current.Save();
+			database.Save();
+
+			Application.Quit();
+
+			base.OnDestroyed();
+		}
+
+		protected override void OnFocusActivated()
+		{
+			if (ENABLE_CUSTOM_STYLES) ReloadStyles();
+
+			base.OnFocusActivated();
 		}
 	}
 }

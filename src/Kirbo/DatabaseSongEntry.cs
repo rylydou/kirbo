@@ -10,8 +10,8 @@ namespace Kirbo
 		public string path;
 
 		public readonly string title;
-		public readonly string? artist;
-		public readonly string? album;
+		public readonly string artist;
+		public readonly string album;
 
 		public readonly string systemTitle;
 		public readonly string systemArtist;
