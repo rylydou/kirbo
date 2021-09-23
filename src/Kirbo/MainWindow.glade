@@ -41,7 +41,7 @@ THE SOFTWARE.
   </object>
   <object class="GtkAdjustment" id="volume">
     <property name="upper">100</property>
-    <property name="value">75</property>
+    <property name="value">100</property>
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
@@ -64,94 +64,26 @@ THE SOFTWARE.
             <property name="spacing">4</property>
             <child>
               <object class="GtkBox">
+                <property name="width-request">200</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <child>
-                  <object class="GtkButton" id="status_state">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <child>
-                      <object class="GtkImage" id="status_state_image">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">media-playback-start-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox">
-                    <property name="width-request">200</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="halign">center</property>
-                    <property name="orientation">vertical</property>
                     <child>
-                      <object class="GtkBox">
+                      <object class="GtkButton" id="status_state">
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="relief">none</property>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="margin-end">8</property>
-                            <property name="pixel-size">32</property>
                             <property name="icon-name">folder-music-symbolic</property>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkLabel" id="status_title">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="halign">start</property>
-                                <property name="label" translatable="yes">--------------------</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="status_artist">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="opacity">0.5</property>
-                                <property name="halign">start</property>
-                                <property name="valign">end</property>
-                                <property name="label" translatable="yes">----------</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="pack-type">end</property>
-                            <property name="position">1</property>
-                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -164,12 +96,16 @@ THE SOFTWARE.
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkLabel" id="status_position">
-                            <property name="width-request">36</property>
+                          <object class="GtkLabel" id="status_title">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">--:--</property>
+                            <property name="halign">start</property>
+                            <property name="label" translatable="yes">No Song playing</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -178,58 +114,97 @@ THE SOFTWARE.
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkProgressBar" id="status_bar">
+                          <object class="GtkLabel" id="status_artist">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="margin-bottom">4</property>
+                            <property name="opacity">0.5</property>
+                            <property name="halign">start</property>
+                            <property name="valign">end</property>
+                            <property name="label" translatable="yes">Some artist</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="padding">4</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="padding">4</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="status_skip">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="relief">none</property>
                         <child>
-                          <object class="GtkLabel" id="status_duration">
-                            <property name="width-request">36</property>
+                          <object class="GtkImage">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">--:--</property>
+                            <property name="icon-name">media-skip-forward-symbolic</property>
                           </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">2</property>
-                          </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="pack-type">end</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">True</property>
+                    <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="padding">4</property>
-                    <property name="position">1</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="status_skip">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
+                    <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkImage">
+                      <object class="GtkLabel" id="status_position">
+                        <property name="width-request">36</property>
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="icon-name">media-skip-forward-symbolic</property>
+                        <property name="label" translatable="yes">--:--</property>
                       </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkProgressBar" id="status_bar">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="padding">4</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="status_duration">
+                        <property name="width-request">36</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">--:--</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -242,8 +217,7 @@ THE SOFTWARE.
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="padding">4</property>
-                <property name="position">0</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -259,7 +233,7 @@ THE SOFTWARE.
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
@@ -279,6 +253,8 @@ THE SOFTWARE.
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="tab-pos">left</property>
+                <property name="scrollable">True</property>
+                <property name="enable-popup">True</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
@@ -310,7 +286,9 @@ THE SOFTWARE.
                         <property name="rubber-banding">True</property>
                         <property name="enable-grid-lines">horizontal</property>
                         <child internal-child="selection">
-                          <object class="GtkTreeSelection"/>
+                          <object class="GtkTreeSelection">
+                            <property name="mode">multiple</property>
+                          </object>
                         </child>
                       </object>
                       <packing>
@@ -331,37 +309,50 @@ THE SOFTWARE.
                     <property name="tab-fill">False</property>
                   </packing>
                 </child>
-                <child type="action-start">
-                  <object class="GtkButton" id="page_music_add">
-                    <property name="width-request">128</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="relief">none</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">value-increase-symbolic</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="tab-fill">False</property>
-                  </packing>
-                </child>
                 <child type="action-end">
-                  <object class="GtkButton" id="page_music_delete">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="relief">none</property>
+                    <property name="can-focus">False</property>
                     <child>
-                      <object class="GtkImage">
+                      <object class="GtkButton" id="page_music_add">
+                        <property name="width-request">128</property>
                         <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">user-trash-symbolic</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="relief">none</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">value-increase-symbolic</property>
+                          </object>
+                        </child>
                       </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="page_music_delete">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                        <property name="relief">none</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">user-trash-symbolic</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>

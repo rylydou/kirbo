@@ -28,14 +28,14 @@ namespace Kirbo
 		[UI] ListStore musicList;
 
 		[UI] Button status_state;
-		[UI] Image status_state_image;
 		[UI] Button status_skip;
-
 		[UI] Label status_title;
 		[UI] Label status_artist;
 		[UI] Label status_position;
 		[UI] ProgressBar status_bar;
 		[UI] Label status_duration;
+
+		[UI] Button button_about;
 
 		[UI] Adjustment volume;
 
@@ -64,23 +64,6 @@ namespace Kirbo
 				player.currentSongInstance.TogglePause();
 			};
 
-			player.currentSongInstance.onStateChanged += (s) =>
-			{
-				switch (s.state)
-				{
-					case ManagedBass.PlaybackState.Playing:
-						status_state_image.SetFromIconName("media-playback-pause-symbolic", IconSize.Button);
-						break;
-					case ManagedBass.PlaybackState.Stalled:
-						status_state_image.SetFromIconName("emblem-synchronizing-symbolic", IconSize.Button);
-						break;
-					case ManagedBass.PlaybackState.Stopped:
-					case ManagedBass.PlaybackState.Paused:
-						status_state_image.SetFromIconName("media-playback-start-symbolic", IconSize.Button);
-						break;
-				}
-			};
-
 			status_skip.Clicked += (sender, args) =>
 			{
 				if (player.playlist is not null)
@@ -103,6 +86,22 @@ namespace Kirbo
 				status_duration.Text = player.currentSongInstance.duration.ToString(@"mm\:ss");
 			};
 
+			page_music_add.Clicked += (sender, args) =>
+			{
+				Trace.WriteLine("Adding new playlist");
+				var playlist = new Playlist("Untitled Playlist");
+				database.playlists.Add(playlist);
+				AddPlaylistPage(playlist);
+			};
+
+			page_music_delete.Clicked += (sender, args) =>
+			{
+				if (page_music.Page < 1) return;
+				Trace.WriteLine($"Deleting playlist #{page_music.Page - 1}");
+				database.playlists.RemoveAt(page_music.Page - 1);
+				page_music.RemovePage(page_music.Page);
+			};
+
 			foreach (var song in database.songs)
 			{
 				musicList.AppendValues(song.title, song.artist, song.album, song.path);
@@ -110,10 +109,7 @@ namespace Kirbo
 
 			foreach (var playlist in database.playlists)
 			{
-				var lable = new Label(playlist.title);
-				var playlistView = new PlaylistView(playlist, lable);
-
-				page_music.AppendPage(playlistView, lable);
+				AddPlaylistPage(playlist);
 			}
 
 			page_music.ShowAll();
@@ -130,6 +126,14 @@ namespace Kirbo
 			}
 
 			Tick();
+		}
+
+		void AddPlaylistPage(Playlist playlist)
+		{
+			var lable = new Label(playlist.title);
+			var playlistView = new PlaylistView(playlist, lable);
+
+			page_music.AppendPage(playlistView, lable);
 		}
 
 		void Tick()

@@ -12,7 +12,7 @@ namespace Kirbo
 		Label tabLable;
 
 #nullable disable
-		[UI] EntryBuffer title;
+		[UI] Entry info_title;
 		[UI] TextBuffer description;
 		[UI] ListStore songsList;
 
@@ -30,9 +30,12 @@ namespace Kirbo
 
 			builder.Autoconnect(this);
 
-			title.Text = playlist.title;
-			title.InsertedText += (sender, args) => playlist.title = title.Text;
-			title.DeletedText += (sender, args) => playlist.title = title.Text;
+			info_title.Text = playlist.title;
+			info_title.Changed += (sender, args) =>
+			{
+				playlist.title = info_title.Text;
+				tabLable.Text = playlist.title;
+			};
 
 			playButton.Clicked += (sender, args) =>
 			{
@@ -45,9 +48,10 @@ namespace Kirbo
 
 			foreach (var song in playlist.songs)
 			{
-				Trace.WriteLine("Adding to playlist " + song);
 				songsList.AppendValues(song.title, song.artist, song.album);
 			}
+
+			songListView.Model = songsList;
 		}
 	}
 }
