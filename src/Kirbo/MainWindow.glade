@@ -63,161 +63,128 @@ THE SOFTWARE.
             <property name="can-focus">False</property>
             <property name="spacing">4</property>
             <child>
-              <object class="GtkBox">
-                <property name="width-request">200</property>
+              <!-- n-columns=3 n-rows=3 -->
+              <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkLabel" id="status_position">
+                    <property name="width-request">36</property>
+                    <property name="height-request">8</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkButton" id="status_state">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="relief">none</property>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="icon-name">folder-music-symbolic</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkBox">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="orientation">vertical</property>
-                        <child>
-                          <object class="GtkLabel" id="status_title">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="halign">start</property>
-                            <property name="label" translatable="yes">No Song playing</property>
-                            <attributes>
-                              <attribute name="weight" value="bold"/>
-                            </attributes>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="status_artist">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="opacity">0.5</property>
-                            <property name="halign">start</property>
-                            <property name="valign">end</property>
-                            <property name="label" translatable="yes">Some artist</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="padding">4</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="status_skip">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="relief">none</property>
-                        <child>
-                          <object class="GtkImage">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="icon-name">media-skip-forward-symbolic</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
+                    <property name="label" translatable="yes">--:--</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">2</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkProgressBar" id="status_bar">
+                    <property name="height-request">8</property>
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-bottom">5</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="status_duration">
+                    <property name="width-request">36</property>
+                    <property name="height-request">8</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">--:--</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="status_state">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="relief">none</property>
                     <child>
-                      <object class="GtkLabel" id="status_position">
-                        <property name="width-request">36</property>
+                      <object class="GtkImage">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">--:--</property>
+                        <property name="icon-name">folder-music-symbolic</property>
                       </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkProgressBar" id="status_bar">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="margin-bottom">4</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="padding">4</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="status_duration">
-                        <property name="width-request">36</property>
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">--:--</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                    <property name="height">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="status_skip">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="relief">none</property>
+                    <child>
+                      <object class="GtkImage">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="icon-name">media-skip-forward-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">0</property>
+                    <property name="height">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="status_artist">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="opacity">0.5</property>
+                    <property name="halign">start</property>
+                    <property name="valign">end</property>
+                    <property name="label" translatable="yes">Select a playlist to play a song</property>
+                    <property name="ellipsize">end</property>
+                    <property name="width-chars">40</property>
+                    <property name="max-width-chars">40</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="status_title">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="label" translatable="yes">No Song playing</property>
+                    <property name="ellipsize">end</property>
+                    <property name="width-chars">40</property>
+                    <property name="max-width-chars">40</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
@@ -282,12 +249,98 @@ THE SOFTWARE.
                         <property name="can-focus">True</property>
                         <property name="model">musicList</property>
                         <property name="headers-visible">False</property>
+                        <property name="reorderable">True</property>
                         <property name="search-column">0</property>
                         <property name="rubber-banding">True</property>
                         <property name="enable-grid-lines">horizontal</property>
                         <child internal-child="selection">
                           <object class="GtkTreeSelection">
                             <property name="mode">multiple</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Title</property>
+                            <child>
+                              <object class="GtkCellRendererText">
+                                <property name="cell-background-gdk">#000000000000</property>
+                                <property name="cell-background-rgba">rgba(0,0,0,0)</property>
+                                <property name="xpad">2</property>
+                                <property name="ypad">2</property>
+                                <property name="xalign">0</property>
+                                <property name="background-gdk">#000000000000</property>
+                                <property name="font">Normal</property>
+                                <property name="background-rgba">rgba(0,0,0,0)</property>
+                                <property name="foreground-rgba">rgba(0,0,0,0)</property>
+                              </object>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Artist</property>
+                            <child>
+                              <object class="GtkCellRendererText">
+                                <property name="cell-background-gdk">#000000000000</property>
+                                <property name="cell-background-rgba">rgba(0,0,0,0)</property>
+                                <property name="xpad">2</property>
+                                <property name="ypad">2</property>
+                                <property name="xalign">0</property>
+                                <property name="background-gdk">#000000000000</property>
+                                <property name="font">Normal</property>
+                                <property name="background-rgba">rgba(0,0,0,0)</property>
+                                <property name="foreground-rgba">rgba(0,0,0,0)</property>
+                              </object>
+                              <attributes>
+                                <attribute name="text">1</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Album</property>
+                            <child>
+                              <object class="GtkCellRendererText">
+                                <property name="cell-background-gdk">#000000000000</property>
+                                <property name="cell-background-rgba">rgba(0,0,0,0)</property>
+                                <property name="xpad">2</property>
+                                <property name="ypad">2</property>
+                                <property name="xalign">0</property>
+                                <property name="background-gdk">#000000000000</property>
+                                <property name="font">Normal</property>
+                                <property name="foreground-gdk">#000000000000</property>
+                                <property name="background-rgba">rgba(0,0,0,0)</property>
+                                <property name="foreground-rgba">rgba(0,0,0,0)</property>
+                              </object>
+                              <attributes>
+                                <attribute name="text">2</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn">
+                            <property name="title" translatable="yes">Location</property>
+                            <child>
+                              <object class="GtkCellRendererText">
+                                <property name="cell-background-gdk">#000000000000</property>
+                                <property name="cell-background-rgba">rgba(0,0,0,0)</property>
+                                <property name="xpad">2</property>
+                                <property name="ypad">2</property>
+                                <property name="xalign">0</property>
+                                <property name="font">Normal</property>
+                                <property name="foreground-gdk">#000000000000</property>
+                                <property name="background-rgba">rgba(0,0,0,0)</property>
+                                <property name="foreground-rgba">rgba(0,0,0,0)</property>
+                              </object>
+                              <attributes>
+                                <attribute name="text">3</attribute>
+                              </attributes>
+                            </child>
                           </object>
                         </child>
                       </object>
@@ -319,6 +372,7 @@ THE SOFTWARE.
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Create new playlist</property>
                         <property name="relief">none</property>
                         <child>
                           <object class="GtkImage">
@@ -335,16 +389,17 @@ THE SOFTWARE.
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="page_music_delete">
+                      <object class="GtkButton" id="page_music_import">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Import playlist</property>
                         <property name="relief">none</property>
                         <child>
                           <object class="GtkImage">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="icon-name">user-trash-symbolic</property>
+                            <property name="icon-name">document-save-symbolic</property>
                           </object>
                         </child>
                       </object>

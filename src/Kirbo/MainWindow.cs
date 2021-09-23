@@ -84,6 +84,8 @@ namespace Kirbo
 				status_artist.Text = s.artist;
 
 				status_duration.Text = player.currentSongInstance.duration.ToString(@"mm\:ss");
+
+				Tick(false);
 			};
 
 			page_music_add.Clicked += (sender, args) =>
@@ -125,7 +127,7 @@ namespace Kirbo
 				StyleContext.AddProviderForScreen(Screen, styleProvider, int.MaxValue);
 			}
 
-			Tick();
+			Tick(true);
 		}
 
 		void AddPlaylistPage(Playlist playlist)
@@ -136,9 +138,9 @@ namespace Kirbo
 			page_music.AppendPage(playlistView, lable);
 		}
 
-		void Tick()
+		void Tick(bool recursive)
 		{
-			if (player.currentSongInstance.state == ManagedBass.PlaybackState.Playing)
+			if (IsFocus && player.currentSongInstance.state == ManagedBass.PlaybackState.Playing)
 			{
 				var position = player.currentSongInstance.position;
 
@@ -146,7 +148,7 @@ namespace Kirbo
 				status_bar.Fraction = position / player.currentSongInstance.duration;
 			}
 
-			Task.Delay(1000).ContinueWith(t => Tick());
+			if (recursive) Task.Delay(1000).ContinueWith(t => Tick(true));
 		}
 
 		void ReloadStyles()
